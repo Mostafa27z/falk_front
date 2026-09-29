@@ -7,9 +7,11 @@ export const credentialsInterceptor: HttpInterceptorFn = (req, next) => {
 
   let targetUrl = req.url;
 
-  // On server-side rendering (SSR Node.js), prepend the absolute domain
-  if (isPlatformServer(platformId) && req.url.startsWith('/api')) {
-    targetUrl = `https://api.falk-el-tawfiq.com${req.url}`;
+  // If request URL starts with relative /api, point to production backend on SSR or non-localhost deployments
+  if (req.url.startsWith('/api')) {
+    if (isPlatformServer(platformId) || (typeof window !== 'undefined' && window.location.hostname !== 'localhost')) {
+      targetUrl = `https://api.falk-el-tawfiq.com${req.url}`;
+    }
   }
 
   const cloned = req.clone({
