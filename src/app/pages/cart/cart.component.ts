@@ -159,6 +159,12 @@ import { CartItem } from '../../core/models';
       .cart-layout { grid-template-columns: 1fr; }
       .cart-summary { position: static; }
     }
+    @media (max-width: 480px) {
+      .cart-item { flex-direction: column; align-items: flex-start; }
+      .cart-item-img { width: 100%; height: 130px; }
+      .cart-item-info { width: 100%; }
+      .cart-item-price { margin-top: var(--space-2); }
+    }
   `]
 })
 export class CartComponent implements OnInit {

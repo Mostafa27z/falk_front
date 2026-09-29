@@ -442,3 +442,26 @@
     padding: var(--space-4);
   }
 }
+
+@media (max-width: 640px) {
+  .learn-topbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+  }
+  .learn-topbar h2 {
+    font-size: var(--font-size-base);
+    text-align: center;
+  }
+  .learn-nav-btns {
+    justify-content: space-between;
+    width: 100%;
+  }
+  .pdf-frame {
+    height: 420px;
+  }
+  .written-content {
+    padding: var(--space-4);
+  }
+}

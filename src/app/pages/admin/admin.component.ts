@@ -1892,10 +1892,24 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    @media (max-width: 768px) {
-      .dash-hero { flex-direction: column; align-items: flex-start; }
+    @media (max-width: 992px) {
+      .dash-hero { flex-direction: column; align-items: flex-start; gap: var(--space-4); }
+      .hero-stats { width: 100%; grid-template-columns: repeat(3, 1fr); margin-top: var(--space-2); }
+      .card-top-bar { flex-direction: column; align-items: flex-start; gap: var(--space-4); }
+      .filter-actions-group { width: 100%; flex-direction: column; align-items: stretch; gap: var(--space-3); }
       .form-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .hero-stats { grid-template-columns: 1fr; }
+      .tabs-nav-bar { display: flex; overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; padding-bottom: 6px; }
+      .nav-tab { white-space: nowrap; flex-shrink: 0; }
       .lesson-type-tabs { grid-template-columns: 1fr 1fr; }
+      .modal-card { width: 95vw; max-height: 90vh; overflow-y: auto; padding: var(--space-4); }
+      .lessons-table-wrapper, .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .bar-title { flex-direction: column; align-items: flex-start; gap: var(--space-2); }
+      .section-header { flex-direction: column; align-items: flex-start; gap: var(--space-3); }
+      .sec-actions { width: 100%; justify-content: flex-start; }
     }
   `]
 })
