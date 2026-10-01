@@ -3,11 +3,14 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
 import { Student } from '../../core/models';
+import { DialogService } from '../../shared/dialog/dialog.service';
+
+import { IconComponent } from '../../shared/icon/icon.component';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, IconComponent],
   template: `
     <div class="profile-page">
       <div class="container">
@@ -22,10 +25,6 @@ import { Student } from '../../core/models';
         @if (student()) {
           <div class="profile-card card animate-fade-in-up">
             <h2>معلومات الحساب</h2>
-
-            @if (successMsg()) {
-              <div class="profile-success">✅ {{ successMsg() }}</div>
-            }
 
             <form (ngSubmit)="onSave()" class="profile-form">
               <div class="form-row">
@@ -49,8 +48,9 @@ import { Student } from '../../core/models';
                 <input type="tel" class="form-input" [value]="student()?.phoneNumber" disabled dir="ltr">
               </div>
 
-              <button type="submit" class="btn btn-primary" [disabled]="saving()">
-                {{ saving() ? 'جاري الحفظ...' : 'حفظ التغييرات' }}
+              <button type="submit" class="btn btn-primary btn-save" [disabled]="saving()">
+                <app-icon name="check" [size]="16" />
+                <span>{{ saving() ? 'جاري الحفظ...' : 'حفظ التغييرات' }}</span>
               </button>
             </form>
           </div>
@@ -90,31 +90,40 @@ import { Student } from '../../core/models';
       border-bottom: 1px solid var(--gray-100);
     }
 
-    .profile-success {
-      background: #f0fdf4; border: 1px solid #bbf7d0; color: #16a34a;
-      padding: var(--space-3) var(--space-4); border-radius: var(--radius-xl);
-      font-size: var(--font-size-sm); font-weight: 600;
-      margin-bottom: var(--space-5); text-align: center;
-    }
-
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
 
     .form-input:disabled {
       background: var(--gray-50); color: var(--gray-400); cursor: not-allowed;
     }
 
-    @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } }
+    .btn-save {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: var(--space-3) var(--space-6);
+    }
+
+    @media (max-width: 640px) {
+      .profile-page { padding: var(--space-6) 0 var(--space-12); }
+      .profile-card { padding: var(--space-5); }
+      .btn-save { width: 100%; }
+    }
+    @media (max-width: 480px) {
+      .form-row { grid-template-columns: 1fr; }
+      .profile-avatar { width: 80px; height: 80px; font-size: var(--font-size-2xl); }
+    }
   `]
 })
 export class ProfileComponent implements OnInit {
   private api = inject(ApiService);
   private auth = inject(AuthService);
+  private dialog = inject(DialogService);
 
   student = signal<Student | null>(null);
   firstName = '';
   lastName = '';
   saving = signal(false);
-  successMsg = signal('');
 
   ngOnInit() {
     this.api.getStudent().subscribe({
@@ -128,20 +137,21 @@ export class ProfileComponent implements OnInit {
 
   getInitials(): string {
     const s = this.student();
-    if (!s) return '?';
+    if (!s) return 'م';
     return (s.firstName[0] || '') + (s.lastName[0] || '');
   }
 
   onSave() {
     this.saving.set(true);
-    this.successMsg.set('');
     this.api.updateStudent({ firstName: this.firstName, lastName: this.lastName }).subscribe({
       next: () => {
         this.saving.set(false);
-        this.successMsg.set('تم حفظ التغييرات بنجاح');
-        setTimeout(() => this.successMsg.set(''), 3000);
+        this.dialog.success('تم حفظ وتحديث بيانات حسابك بنجاح!');
       },
-      error: () => this.saving.set(false)
+      error: () => {
+        this.saving.set(false);
+        this.dialog.error('حدث خطأ أثناء حفظ التغييرات، يرجى المحاولة لاحقاً.');
+      }
     });
   }
 }

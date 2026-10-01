@@ -210,15 +210,23 @@
 }
 
 @media (max-width: 480px) {
+  .detail-hero { padding: var(--space-4) 0; }
+  .detail-info h1 { font-size: var(--font-size-2xl); }
+  .detail-meta { gap: var(--space-3); }
   .price-card {
     width: 100%;
     max-width: 100%;
-    padding: var(--space-5);
   }
-  .syllabus-header {
+  .price-card-body {
     padding: var(--space-4);
   }
+  .section-header {
+    padding: var(--space-4) var(--space-3);
+  }
   .lesson-item {
-    padding: var(--space-3) var(--space-4);
+    padding: var(--space-3) var(--space-3);
+  }
+  .section-title-row h3 {
+    font-size: var(--font-size-sm);
   }
 }

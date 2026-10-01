@@ -18,12 +18,15 @@ import {
 } from '../../core/models';
 import { extractErrorMessage } from '../../core/error-utils';
 
+import { IconComponent, IconName } from '../../shared/icon/icon.component';
+import { DialogService } from '../../shared/dialog/dialog.service';
+
 type DashboardTab = 'courses' | 'instructors' | 'invite';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule, IconComponent],
   template: `
     <div class="dashboard-page">
       <div class="dashboard-container">
@@ -32,7 +35,9 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
         <header class="dash-hero card-glass animate-fade-in-up">
           <div class="hero-right">
             <div class="avatar-glow">
-              <span class="avatar-icon">👑</span>
+              <span class="avatar-icon">
+                <app-icon name="shield-check" [size]="28" />
+              </span>
             </div>
             <div class="hero-info">
               <div class="role-pill">
@@ -46,7 +51,9 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
 
           <div class="hero-stats">
             <div class="stat-box">
-              <div class="stat-icon-wrapper purple">📚</div>
+              <div class="stat-icon-wrapper purple">
+                <app-icon name="book-open" [size]="22" />
+              </div>
               <div class="stat-content">
                 <span class="stat-num">{{ courses().length }}</span>
                 <span class="stat-title">إجمالي الدورات</span>
@@ -54,7 +61,9 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
             </div>
 
             <div class="stat-box">
-              <div class="stat-icon-wrapper blue">👨‍🏫</div>
+              <div class="stat-icon-wrapper blue">
+                <app-icon name="user" [size]="22" />
+              </div>
               <div class="stat-content">
                 <span class="stat-num">{{ instructors().length }}</span>
                 <span class="stat-title">المحاضرون</span>
@@ -62,7 +71,9 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
             </div>
 
             <div class="stat-box">
-              <div class="stat-icon-wrapper green">✓</div>
+              <div class="stat-icon-wrapper green">
+                <app-icon name="check-circle" [size]="22" />
+              </div>
               <div class="stat-content">
                 <span class="stat-num">{{ publishedCount() }}</span>
                 <span class="stat-title">دورات منشورة</span>
@@ -79,7 +90,9 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
               class="nav-tab"
               [class.active]="activeTab() === 'courses'"
               (click)="activeTab.set('courses')">
-              <span class="tab-icon">📚</span>
+              <span class="tab-icon">
+                <app-icon name="book-open" [size]="18" />
+              </span>
               <span>إدارة الدورات</span>
               <span class="tab-badge">{{ courses().length }}</span>
             </button>
@@ -89,7 +102,9 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
               class="nav-tab"
               [class.active]="activeTab() === 'instructors'"
               (click)="activeTab.set('instructors')">
-              <span class="tab-icon">👨‍🏫</span>
+              <span class="tab-icon">
+                <app-icon name="user" [size]="18" />
+              </span>
               <span>قائمة المحاضرين</span>
               <span class="tab-badge">{{ instructors().length }}</span>
             </button>
@@ -99,7 +114,9 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
               class="nav-tab"
               [class.active]="activeTab() === 'invite'"
               (click)="activeTab.set('invite')">
-              <span class="tab-icon">➕</span>
+              <span class="tab-icon">
+                <app-icon name="plus" [size]="18" />
+              </span>
               <span>دعوة محاضر جديد</span>
             </button>
           </div>
@@ -108,7 +125,9 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
         <!-- Notification Alert -->
         @if (feedback()) {
           <div class="alert-box" [class.success]="feedbackType() === 'success'" [class.error]="feedbackType() === 'error'">
-            <span class="alert-icon">{{ feedbackType() === 'success' ? '✓' : '⚠️' }}</span>
+            <span class="alert-icon">
+              <app-icon [name]="feedbackType() === 'success' ? 'check-circle' : 'alert-circle'" [size]="20" />
+            </span>
             <span>{{ feedback() }}</span>
           </div>
         }
@@ -121,14 +140,16 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
             <div class="card-top-bar">
               <div class="bar-title">
                 <button class="btn btn-outline btn-sm" (click)="closeCurriculum()">
-                  ← العودة لقائمة الدورات
+                  <app-icon name="arrow-right" [size]="14" />
+                  <span>العودة لقائمة الدورات</span>
                 </button>
                 <h2>المنهج الدراسي: {{ activeCurriculumCourse()!.title }}</h2>
                 <span class="count-tag">{{ activeCurriculumCourse()!.price }} ر.س</span>
               </div>
               <div class="actions-cluster">
                 <button class="btn btn-primary btn-sm" (click)="openAddSectionModal()">
-                  ➕ إضافة فصل جديد
+                  <app-icon name="plus" [size]="14" />
+                  <span>إضافة فصل جديد</span>
                 </button>
               </div>
             </div>
@@ -140,11 +161,14 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
               </div>
             } @else if (activeCurriculumCourse()!.sections.length === 0) {
               <div class="state-empty">
-                <span class="empty-emoji">📂</span>
+                <div class="empty-icon-wrap">
+                  <app-icon name="book-open" [size]="48" [strokeWidth]="1.5" />
+                </div>
                 <h3>لا توجد فصول بعد في هذه الدورة</h3>
                 <p>ابدأ بإضافة أول فصل دراسي ثم أضف الدروس بداخله.</p>
                 <button class="btn btn-primary btn-md" (click)="openAddSectionModal()" style="margin-top: 16px">
-                  ➕ إضافة أول فصل الآن
+                  <app-icon name="plus" [size]="16" />
+                  <span>إضافة أول فصل الآن</span>
                 </button>
               </div>
             } @else {
@@ -159,10 +183,12 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
                       </div>
                       <div class="sec-actions">
                         <button class="btn-action btn-preview" (click)="openAddLessonModal(sec)">
-                          ➕ إضافة درس
+                          <app-icon name="plus" [size]="12" />
+                          <span>إضافة درس</span>
                         </button>
                         <button class="btn-action btn-archive" (click)="renameSection(sec)">
-                          ✏️ تعديل الاسم
+                          <app-icon name="edit" [size]="12" />
+                          <span>تعديل الاسم</span>
                         </button>
                       </div>
                     </div>
@@ -187,7 +213,9 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
                               <tr>
                                 <td>
                                   <div class="lesson-meta-cell">
-                                    <span class="lesson-type-icon">{{ getLessonEmoji(l.type) }}</span>
+                                    <span class="lesson-type-icon">
+                                      <app-icon [name]="getLessonEmoji(l.type)" [size]="16" />
+                                    </span>
                                     <strong>{{ l.title }}</strong>
                                   </div>
                                 </td>
@@ -200,11 +228,13 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
                                   <div class="actions-cluster">
                                     @if (l.type === 'Video') {
                                       <button type="button" class="btn-action btn-preview" (click)="openUploadVideoModal(l)" title="رفع أو استبدال ملف الفيديو">
-                                        🎥 رفع الفيديو
+                                        <app-icon name="video" [size]="12" />
+                                        <span>رفع الفيديو</span>
                                       </button>
                                     }
                                     <button class="btn-action btn-archive" (click)="deleteLesson(l.id)">
-                                      🗑️ حذف
+                                      <app-icon name="trash" [size]="12" />
+                                      <span>حذف</span>
                                     </button>
                                   </div>
                                 </td>
@@ -244,7 +274,8 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
                 </div>
 
                 <button class="btn btn-primary btn-sm" (click)="openCreateCourseModal()">
-                  ➕ إنشاء دورة جديدة
+                  <app-icon name="plus" [size]="14" />
+                  <span>إنشاء دورة جديدة</span>
                 </button>
               </div>
             </div>
@@ -256,7 +287,9 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
               </div>
             } @else if (filteredCourses().length === 0) {
               <div class="state-empty">
-                <span class="empty-emoji">📂</span>
+                <div class="empty-icon-wrap">
+                  <app-icon name="book-open" [size]="48" [strokeWidth]="1.5" />
+                </div>
                 <h3>لا توجد دورات مطابقة</h3>
                 <p>لم يتم العثور على أي دورات ضمن التصنيف المحدد.</p>
               </div>
@@ -281,7 +314,7 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
                               @if (c.picturePath) {
                                 <img [src]="c.picturePath" [alt]="c.title" class="thumb-img">
                               } @else {
-                                📖
+                                <app-icon name="book-open" [size]="20" />
                               }
                             </div>
                             <div>
@@ -315,20 +348,23 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
                               class="btn-action btn-curriculum"
                               (click)="openCurriculum(c.id)"
                               title="إدارة فصول ودروس المنهج الدراسي">
-                              🛠️ المنهج والدروس
+                              <app-icon name="book-open" [size]="14" />
+                              <span>المنهج والدروس</span>
                             </button>
                             <button
                               class="btn-action btn-preview"
                               (click)="openEditCourseModal(c)"
                               title="تعديل بيانات الدورة وغلافها">
-                              ✏️ تعديل
+                              <app-icon name="edit" [size]="14" />
+                              <span>تعديل</span>
                             </button>
                             @if (c.status !== 'Published') {
                               <button
                                 class="btn-action btn-publish"
                                 (click)="publish(c.id)"
                                 title="نشر الدورة لتكون متاحة للطلاب">
-                                ✓ نشر
+                                <app-icon name="check" [size]="14" />
+                                <span>نشر</span>
                               </button>
                             }
                             @if (c.status !== 'Archived') {
@@ -336,7 +372,8 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
                                 class="btn-action btn-archive"
                                 (click)="archive(c.id)"
                                 title="أرشفة الدورة">
-                                أرشفة
+                                <app-icon name="lock" [size]="12" />
+                                <span>أرشفة</span>
                               </button>
                             }
                             <a
@@ -344,7 +381,8 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
                               class="btn-action btn-link-ext"
                               target="_blank"
                               title="معاينة الدورة كما تظهر للطالب">
-                              عرض ↗
+                              <span>عرض</span>
+                              <app-icon name="arrow-left" [size]="12" />
                             </a>
                           </div>
                         </td>
@@ -368,7 +406,8 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
                 <span class="count-tag">{{ instructors().length }} محاضر</span>
               </div>
               <button class="btn btn-primary btn-sm" (click)="activeTab.set('invite')">
-                ➕ دعوة محاضر جديد
+                <app-icon name="plus" [size]="14" />
+                <span>دعوة محاضر جديد</span>
               </button>
             </div>
 
@@ -379,7 +418,9 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
               </div>
             } @else if (instructors().length === 0) {
               <div class="state-empty">
-                <span class="empty-emoji">👨‍🏫</span>
+                <div class="empty-icon-wrap">
+                  <app-icon name="user" [size]="48" [strokeWidth]="1.5" />
+                </div>
                 <h3>لا يوجد محاضرون بعد</h3>
                 <p>ابدأ بدعوة محاضرين جدد للانضمام إلى المنصة.</p>
               </div>
@@ -408,7 +449,8 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
 
                       @if (!inst.isDeleted) {
                         <button class="btn-action btn-archive" (click)="deleteInst(inst.id)">
-                          حذف
+                          <app-icon name="trash" [size]="12" />
+                          <span>حذف</span>
                         </button>
                       }
                     </div>
@@ -485,7 +527,8 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
 
               <div class="form-actions">
                 <button type="submit" class="btn btn-primary btn-lg" [disabled]="inviting()">
-                  {{ inviting() ? 'جاري إرسال الدعوة...' : '🚀 إرسال دعوة المحاضر الآن' }}
+                  <app-icon name="sparkles" [size]="18" />
+                  <span>{{ inviting() ? 'جاري إرسال الدعوة...' : 'إرسال دعوة المحاضر الآن' }}</span>
                 </button>
               </div>
             </form>
@@ -502,8 +545,13 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
       <div class="modal-overlay animate-fade-in" (click)="closeCourseModal()">
         <div class="modal-card card-glass animate-scale-in" (click)="$event.stopPropagation()">
           <div class="modal-header">
-            <h3>{{ courseModalMode() === 'create' ? '➕ إنشاء دورة تدريبية جديدة' : '✏️ تعديل بيانات الدورة' }}</h3>
-            <button class="modal-close" (click)="closeCourseModal()">✕</button>
+            <h3>
+              <app-icon [name]="courseModalMode() === 'create' ? 'plus' : 'edit'" [size]="20" />
+              <span>{{ courseModalMode() === 'create' ? 'إنشاء دورة تدريبية جديدة' : 'تعديل بيانات الدورة' }}</span>
+            </h3>
+            <button class="modal-close" (click)="closeCourseModal()">
+              <app-icon name="x" [size]="18" />
+            </button>
           </div>
 
           <form (ngSubmit)="saveCourse()">
@@ -585,8 +633,13 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
       <div class="modal-overlay animate-fade-in" (click)="showSectionModal.set(false)">
         <div class="modal-card card-glass animate-scale-in" (click)="$event.stopPropagation()">
           <div class="modal-header">
-            <h3>{{ editingSectionId() ? '✏️ تعديل اسم الفصل' : '➕ إضافة فصل دراسي جديد' }}</h3>
-            <button class="modal-close" (click)="showSectionModal.set(false)">✕</button>
+            <h3>
+              <app-icon [name]="editingSectionId() ? 'edit' : 'plus'" [size]="20" />
+              <span>{{ editingSectionId() ? 'تعديل اسم الفصل' : 'إضافة فصل دراسي جديد' }}</span>
+            </h3>
+            <button class="modal-close" (click)="showSectionModal.set(false)">
+              <app-icon name="x" [size]="18" />
+            </button>
           </div>
 
           <form (ngSubmit)="saveSection()">
@@ -620,10 +673,15 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
         <div class="modal-card card-glass modal-lg animate-scale-in" (click)="$event.stopPropagation()">
           <div class="modal-header">
             <div>
-              <h3>➕ إضافة درس جديد</h3>
+              <h3>
+                <app-icon name="plus" [size]="20" />
+                <span>إضافة درس جديد</span>
+              </h3>
               <p style="font-size:0.8rem; color:var(--gray-500)">الفصل: {{ activeSectionForLesson()?.title }}</p>
             </div>
-            <button class="modal-close" (click)="closeLessonModal()">✕</button>
+            <button class="modal-close" (click)="closeLessonModal()">
+              <app-icon name="x" [size]="18" />
+            </button>
           </div>
 
           <form (ngSubmit)="saveLesson()">
@@ -647,28 +705,32 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
                   class="type-tab"
                   [class.active]="lessonTypeInput === 'Written'"
                   (click)="lessonTypeInput = 'Written'">
-                  📝 درس نصي
+                  <app-icon name="file-text" [size]="16" />
+                  <span>درس نصي</span>
                 </button>
                 <button
                   type="button"
                   class="type-tab"
                   [class.active]="lessonTypeInput === 'Video'"
                   (click)="lessonTypeInput = 'Video'">
-                  🎥 درس فيديو
+                  <app-icon name="video" [size]="16" />
+                  <span>درس فيديو</span>
                 </button>
                 <button
                   type="button"
                   class="type-tab"
                   [class.active]="lessonTypeInput === 'Quiz'"
                   (click)="lessonTypeInput = 'Quiz'">
-                  ❓ اختبار تقييمي
+                  <app-icon name="help-circle" [size]="16" />
+                  <span>اختبار تقييمي</span>
                 </button>
                 <button
                   type="button"
                   class="type-tab"
                   [class.active]="lessonTypeInput === 'Pdf'"
                   (click)="lessonTypeInput = 'Pdf'">
-                  📄 ملف PDF
+                  <app-icon name="file" [size]="16" />
+                  <span>ملف PDF</span>
                 </button>
               </div>
             </div>
@@ -701,18 +763,25 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
                   <label for="videoFileInput" class="dropzone-label">
                     @if (!videoFile) {
                       <div class="dropzone-empty">
-                        <span class="drop-icon">🎥</span>
+                        <span class="drop-icon">
+                          <app-icon name="video" [size]="36" [strokeWidth]="1.5" />
+                        </span>
                         <h4>اضغط هنا لاختيار ملف الفيديو أو اسحبه وأفلته</h4>
                         <p class="drop-hint">يدعم صيغ MP4, MOV, MKV, WebM حتى 2 جيجابايت</p>
                       </div>
                     } @else {
                       <div class="dropzone-selected">
-                        <span class="file-icon">🎬</span>
+                        <span class="file-icon">
+                          <app-icon name="video" [size]="20" />
+                        </span>
                         <div class="file-info">
                           <strong>{{ videoFile.name }}</strong>
                           <span class="file-size">{{ formatFileSize(videoFile.size) }}</span>
                         </div>
-                        <button type="button" class="btn-remove-file" (click)="clearVideoFile($event)">✕ تغيير الملف</button>
+                        <button type="button" class="btn-remove-file" (click)="clearVideoFile($event)">
+                          <app-icon name="x" [size]="14" />
+                          <span>تغيير الملف</span>
+                        </button>
                       </div>
                     }
                   </label>
@@ -721,7 +790,10 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
                 @if (videoUploading()) {
                   <div class="video-progress-wrapper animate-fade-in">
                     <div class="progress-labels">
-                      <span>🚀 جاري رفع وتشفير الفيديو على Bunny Stream...</span>
+                      <span>
+                        <app-icon name="upload-cloud" [size]="16" />
+                        جاري رفع وتشفير الفيديو على Bunny Stream...
+                      </span>
                       <span class="percent-text">{{ videoUploadProgress() }}%</span>
                     </div>
                     <div class="progress-bar-track">
@@ -769,7 +841,8 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
                   <div class="questions-header">
                     <h4>أسئلة الاختبار ({{ quizQuestions.length }})</h4>
                     <button type="button" class="btn btn-outline btn-sm" (click)="addQuestion()">
-                      ➕ إضافة سؤال جديد
+                      <app-icon name="plus" [size]="14" />
+                      <span>إضافة سؤال جديد</span>
                     </button>
                   </div>
 
@@ -778,7 +851,10 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
                       <div class="q-card-head">
                         <strong>السؤال {{ qi + 1 }}</strong>
                         @if (quizQuestions.length > 1) {
-                          <button type="button" class="btn-text-danger" (click)="removeQuestion(qi)">✕ حذف</button>
+                          <button type="button" class="btn-text-danger" (click)="removeQuestion(qi)">
+                            <app-icon name="trash" [size]="14" />
+                            <span>حذف</span>
+                          </button>
                         }
                       </div>
 
@@ -807,12 +883,15 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
                               [name]="'ans_' + qi + '_' + ai"
                               required>
                             @if (q.answers.length > 2) {
-                              <button type="button" class="btn-text-danger" (click)="removeAnswer(qi, ai)">✕</button>
+                              <button type="button" class="btn-text-danger" (click)="removeAnswer(qi, ai)">
+                                <app-icon name="x" [size]="14" />
+                              </button>
                             }
                           </div>
                         }
                         <button type="button" class="btn btn-link btn-sm" (click)="addAnswer(qi)">
-                          + إضافة خيار إضافي
+                          <app-icon name="plus" [size]="14" />
+                          <span>إضافة خيار إضافي</span>
                         </button>
                       </div>
                     </div>
@@ -840,10 +919,15 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
         <div class="modal-card card-glass animate-scale-in" (click)="$event.stopPropagation()">
           <div class="modal-header">
             <div>
-              <h3>🎥 رفع / تحديث فيديو الدرس</h3>
+              <h3>
+                <app-icon name="video" [size]="20" />
+                <span>رفع / تحديث فيديو الدرس</span>
+              </h3>
               <p style="font-size:0.8rem; color:var(--gray-500)">{{ targetLessonForVideo()?.title }}</p>
             </div>
-            <button class="modal-close" (click)="closeUploadVideoModal()">✕</button>
+            <button class="modal-close" (click)="closeUploadVideoModal()">
+              <app-icon name="x" [size]="18" />
+            </button>
           </div>
 
           <form (ngSubmit)="startStandaloneVideoUpload()">
@@ -859,18 +943,25 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
                 <label for="standaloneVideoInput" class="dropzone-label">
                   @if (!standaloneVideoFile) {
                     <div class="dropzone-empty">
-                      <span class="drop-icon">🎥</span>
+                      <span class="drop-icon">
+                        <app-icon name="video" [size]="36" [strokeWidth]="1.5" />
+                      </span>
                       <h4>اضغط هنا لاختيار ملف الفيديو أو اسحبه هنا</h4>
                       <p class="drop-hint">يدعم صيغ MP4, MOV, MKV, WebM حتى 2 جيجابايت</p>
                     </div>
                   } @else {
                     <div class="dropzone-selected">
-                      <span class="file-icon">🎬</span>
+                      <span class="file-icon">
+                        <app-icon name="video" [size]="20" />
+                      </span>
                       <div class="file-info">
                         <strong>{{ standaloneVideoFile.name }}</strong>
                         <span class="file-size">{{ formatFileSize(standaloneVideoFile.size) }}</span>
                       </div>
-                      <button type="button" class="btn-remove-file" (click)="clearStandaloneVideo($event)">✕ تغيير الملف</button>
+                      <button type="button" class="btn-remove-file" (click)="clearStandaloneVideo($event)">
+                        <app-icon name="x" [size]="14" />
+                        <span>تغيير الملف</span>
+                      </button>
                     </div>
                   }
                 </label>
@@ -879,7 +970,10 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
               @if (videoUploading()) {
                 <div class="video-progress-wrapper animate-fade-in">
                   <div class="progress-labels">
-                    <span>🚀 جاري رفع الفيديو (Bunny Stream)...</span>
+                    <span>
+                      <app-icon name="upload-cloud" [size]="16" />
+                      جاري رفع الفيديو (Bunny Stream)...
+                    </span>
                     <span class="percent-text">{{ videoUploadProgress() }}%</span>
                   </div>
                   <div class="progress-bar-track">
@@ -893,7 +987,8 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
             <div class="modal-footer">
               <button type="button" class="btn btn-outline" (click)="closeUploadVideoModal()" [disabled]="videoUploading()">إلغاء</button>
               <button type="submit" class="btn btn-primary" [disabled]="!standaloneVideoFile || videoUploading()">
-                {{ videoUploading() ? ('جاري الرفع (' + videoUploadProgress() + '%)...') : '🚀 بدء رفع الفيديو الآن' }}
+                <app-icon name="upload-cloud" [size]="18" />
+                <span>{{ videoUploading() ? ('جاري الرفع (' + videoUploadProgress() + '%)...') : 'بدء رفع الفيديو الآن' }}</span>
               </button>
             </div>
           </form>
@@ -936,18 +1031,25 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
     }
 
     .avatar-glow {
-      width: 76px;
-      height: 76px;
+      width: 68px;
+      height: 68px;
       border-radius: var(--radius-2xl);
       background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 8px 24px rgba(124, 58, 237, 0.35);
+      box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.3);
       flex-shrink: 0;
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
-    .avatar-icon { font-size: 2.2rem; }
+    .avatar-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+    }
 
     .hero-info h1 {
       font-size: var(--font-size-2xl);
@@ -966,9 +1068,10 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
       align-items: center;
       gap: 6px;
       padding: 4px 12px;
-      background: rgba(124, 58, 237, 0.1);
+      background: rgba(124, 58, 237, 0.08);
+      border: 1px solid rgba(124, 58, 237, 0.16);
       border-radius: var(--radius-full);
-      color: #6d28d9;
+      color: #7c3aed;
       font-size: var(--font-size-xs);
       font-weight: 800;
       margin-bottom: var(--space-2);
@@ -990,12 +1093,19 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
     .stat-box {
       display: flex;
       align-items: center;
-      gap: var(--space-3);
-      padding: var(--space-3) var(--space-5);
+      gap: var(--space-4);
+      padding: var(--space-4) var(--space-5);
       background: white;
       border-radius: var(--radius-2xl);
       border: 1px solid rgba(139, 92, 246, 0.12);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .stat-box:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(124, 58, 237, 0.08);
+      border-color: rgba(139, 92, 246, 0.25);
     }
 
     .stat-icon-wrapper {
@@ -1005,8 +1115,7 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.25rem;
-      font-weight: 900;
+      flex-shrink: 0;
     }
 
     .stat-icon-wrapper.purple { background: #f5f3ff; color: #7c3aed; }
@@ -1888,7 +1997,19 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
       margin: 0 auto var(--space-4);
     }
 
-    .empty-emoji { font-size: 3rem; display: block; margin-bottom: var(--space-2); }
+    .empty-icon-wrap {
+      width: 72px;
+      height: 72px;
+      border-radius: var(--radius-2xl);
+      background: var(--primary-50);
+      color: var(--primary-600);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: var(--space-4);
+      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.08);
+      border: 1px solid var(--primary-100);
+    }
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -1900,7 +2021,23 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
       .form-grid { grid-template-columns: 1fr; }
     }
 
+    @media (max-width: 820px) {
+      .btn-action span {
+        display: none;
+      }
+      .btn-action {
+        padding: 8px;
+        min-width: 34px;
+        height: 34px;
+        justify-content: center;
+        border-radius: var(--radius-md);
+      }
+    }
+
     @media (max-width: 640px) {
+      .dashboard-page { padding: var(--space-4) var(--space-2) var(--space-12); }
+      .dash-hero { padding: var(--space-5); }
+      .hero-right { flex-direction: column; align-items: flex-start; gap: var(--space-3); }
       .hero-stats { grid-template-columns: 1fr; }
       .tabs-nav-bar { display: flex; overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; padding-bottom: 6px; }
       .nav-tab { white-space: nowrap; flex-shrink: 0; }
@@ -1909,13 +2046,16 @@ type DashboardTab = 'courses' | 'instructors' | 'invite';
       .lessons-table-wrapper, .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
       .bar-title { flex-direction: column; align-items: flex-start; gap: var(--space-2); }
       .section-header { flex-direction: column; align-items: flex-start; gap: var(--space-3); }
-      .sec-actions { width: 100%; justify-content: flex-start; }
+      .sec-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+      .sec-actions .sec-btn span { display: none; }
+      .sec-actions .sec-btn { padding: 6px 10px; }
     }
   `]
 })
 export class AdminComponent implements OnInit {
   auth = inject(AuthService);
   private api = inject(ApiService);
+  private dialog = inject(DialogService);
 
   activeTab = signal<DashboardTab>('courses');
   courses = signal<AdminCourseListItem[]>([]);
@@ -2136,10 +2276,19 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  archive(courseId: string) {
+  async archive(courseId: string) {
+    const ok = await this.dialog.confirm({
+      title: 'أرشفة الدورة التدريبية',
+      message: 'هل أنت متأكد من رغبتك في أرشفة هذه الدورة وإخفائها من الدليل؟',
+      type: 'warning',
+      confirmText: 'نعم، أرشفة الدورة',
+      cancelText: 'إلغاء'
+    });
+    if (!ok) return;
+
     this.api.archiveCourse(courseId).subscribe({
       next: () => {
-        this.showFeedback('تم أرشفة الدورة بنجاح.', 'success');
+        this.dialog.success('تم أرشفة الدورة بنجاح.');
         this.loadCourses();
       },
       error: (err) => this.showFeedback(extractErrorMessage(err), 'error')
@@ -2245,9 +2394,16 @@ export class AdminComponent implements OnInit {
     this.showLessonModal.set(true);
   }
 
-  closeLessonModal() {
+  async closeLessonModal() {
     if (this.videoUploading()) {
-      if (!confirm('هناك عملية رفع فيديو جارية، هل أنت متأكد من الإلغاء؟')) return;
+      const ok = await this.dialog.confirm({
+        title: 'إلغاء رفع الفيديو',
+        message: 'هناك عملية رفع فيديو جارية حالياً، هل أنت متأكد من الإلغاء وفقدان التقدم؟',
+        type: 'warning',
+        confirmText: 'نعم، إلغاء الرفع',
+        cancelText: 'متابعة الرفع'
+      });
+      if (!ok) return;
     }
     this.showLessonModal.set(false);
     this.activeSectionForLesson.set(null);
@@ -2284,9 +2440,16 @@ export class AdminComponent implements OnInit {
     this.showUploadVideoModal.set(true);
   }
 
-  closeUploadVideoModal() {
+  async closeUploadVideoModal() {
     if (this.videoUploading()) {
-      if (!confirm('هناك عملية رفع فيديو جارية، هل أنت متأكد من الإلغاء؟')) return;
+      const ok = await this.dialog.confirm({
+        title: 'إلغاء رفع الفيديو',
+        message: 'هناك عملية رفع فيديو جارية حالياً، هل أنت متأكد من الإلغاء وفقدان التقدم؟',
+        type: 'warning',
+        confirmText: 'نعم، إلغاء الرفع',
+        cancelText: 'متابعة الرفع'
+      });
+      if (!ok) return;
     }
     this.showUploadVideoModal.set(false);
     this.targetLessonForVideo.set(null);
@@ -2547,14 +2710,22 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  deleteLesson(lessonId: string) {
-    if (!confirm('هل أنت متأكد من رغبتك في حذف هذا الدرس نهائياً؟')) return;
+  async deleteLesson(lessonId: string) {
+    const ok = await this.dialog.confirm({
+      title: 'حذف الدرس نهائياً',
+      message: 'هل أنت متأكد من رغبتك في حذف هذا الدرس؟ لا يمكن التراجع عن هذا الإجراء.',
+      type: 'danger',
+      confirmText: 'نعم، احذف الدرس',
+      cancelText: 'إلغاء'
+    });
+    if (!ok) return;
+
     this.api.deleteLesson(lessonId).subscribe({
       next: () => {
-        this.showFeedback('تم حذف الدرس بنجاح', 'success');
+        this.dialog.success('تم حذف الدرس بنجاح');
         this.refreshCurriculum();
       },
-      error: (err) => this.showFeedback(extractErrorMessage(err), 'error')
+      error: (err) => this.dialog.error(extractErrorMessage(err))
     });
   }
 
@@ -2563,33 +2734,41 @@ export class AdminComponent implements OnInit {
   // ==============================================================
   sendInvite() {
     if (!this.inviteForm.firstName || !this.inviteForm.lastName || !this.inviteForm.email) {
-      this.showFeedback('يرجى ملء جميع الحقول المطلوبة', 'error');
+      this.dialog.warning('يرجى ملء جميع الحقول المطلوبة (الاسم والبريد الإلكتروني)');
       return;
     }
     this.inviting.set(true);
     this.api.inviteInstructor(this.inviteForm).subscribe({
       next: () => {
         this.inviting.set(false);
-        this.showFeedback('تم إرسال دعوة المحاضر بنجاح!', 'success');
+        this.dialog.success('تم إرسال دعوة المحاضر بنجاح! سيتمكن من تفعيل حسابه فوراً.');
         this.inviteForm = { firstName: '', lastName: '', email: '', bio: '' };
         this.loadInstructors();
         this.activeTab.set('instructors');
       },
       error: (err) => {
         this.inviting.set(false);
-        this.showFeedback(extractErrorMessage(err), 'error');
+        this.dialog.error(extractErrorMessage(err));
       }
     });
   }
 
-  deleteInst(id: string) {
-    if (!confirm('هل أنت متأكد من رغبتك في حذف هذا المحاضر؟')) return;
+  async deleteInst(id: string) {
+    const ok = await this.dialog.confirm({
+      title: 'حذف المحاضر',
+      message: 'هل أنت متأكد من رغبتك في حذف هذا المحاضر من المنصة؟',
+      type: 'danger',
+      confirmText: 'نعم، حذف المحاضر',
+      cancelText: 'إلغاء'
+    });
+    if (!ok) return;
+
     this.api.deleteInstructor(id).subscribe({
       next: () => {
-        this.showFeedback('تم حذف المحاضر بنجاح', 'success');
+        this.dialog.success('تم حذف المحاضر بنجاح');
         this.loadInstructors();
       },
-      error: (err) => this.showFeedback(extractErrorMessage(err), 'error')
+      error: (err) => this.dialog.error(extractErrorMessage(err))
     });
   }
 
@@ -2615,21 +2794,21 @@ export class AdminComponent implements OnInit {
     }
   }
 
-  getLessonEmoji(type: LessonType): string {
+  getLessonEmoji(type: LessonType): IconName {
     switch (type) {
-      case 'Written': return '📝';
-      case 'Video': return '🎥';
-      case 'Quiz': return '❓';
-      case 'Pdf': return '📄';
-      default: return '📖';
+      case 'Written': return 'file-text';
+      case 'Video': return 'video';
+      case 'Quiz': return 'help-circle';
+      case 'Pdf': return 'file';
+      default: return 'book-open';
     }
   }
 
   getInitials(name?: string): string {
-    if (!name) return '👑';
+    if (!name) return 'م.ن';
     const parts = name.trim().split(' ');
-    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
-    return name.slice(0, 2).toUpperCase();
+    if (parts.length >= 2) return (parts[0][0] + ' ' + parts[1][0]);
+    return name.slice(0, 2);
   }
 
   formatDate(dateStr?: string): string {
@@ -2645,5 +2824,8 @@ export class AdminComponent implements OnInit {
     this.feedback.set(msg);
     this.feedbackType.set(type);
     setTimeout(() => this.feedback.set(''), 4000);
+    if (type === 'error') {
+      this.dialog.error(msg);
+    }
   }
 }

@@ -2,11 +2,12 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../core/api.service';
 import { CourseListItem } from '../../core/models';
+import { IconComponent } from '../../shared/icon/icon.component';
 
 @Component({
   selector: 'app-courses',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, IconComponent],
   template: `
     <section class="courses-page">
       <div class="container">
@@ -37,13 +38,16 @@ import { CourseListItem } from '../../core/models';
                     <img [src]="course.picturePath" [alt]="course.title">
                   } @else {
                     <div class="course-img-placeholder">
-                      <span>📚</span>
+                      <app-icon name="book-open" [size]="40" [strokeWidth]="1.5" />
                     </div>
                   }
                 </div>
                 <div class="course-info">
                   <h3>{{ course.title }}</h3>
-                  <p class="course-instructor">👤 {{ course.instructor }}</p>
+                  <p class="course-instructor">
+                    <app-icon name="user" [size]="14" />
+                    <span>{{ course.instructor }}</span>
+                  </p>
                   <div class="course-footer">
                     <span class="course-price">{{ course.price }} ر.س</span>
                     <span class="course-date">{{ formatDate(course.createdAt) }}</span>
@@ -55,7 +59,9 @@ import { CourseListItem } from '../../core/models';
 
           @if (courses().length === 0) {
             <div class="empty-state">
-              <span class="empty-icon">📭</span>
+              <div class="empty-icon-wrap">
+                <app-icon name="book-open" [size]="48" [strokeWidth]="1.5" />
+              </div>
               <h3>لا توجد دورات متاحة حالياً</h3>
               <p>سيتم إضافة دورات جديدة قريباً</p>
             </div>
@@ -64,7 +70,10 @@ import { CourseListItem } from '../../core/models';
           @if (hasMore()) {
             <div class="load-more">
               <button class="btn btn-outline btn-lg" (click)="loadMore()" [disabled]="loadingMore()">
-                {{ loadingMore() ? 'جاري التحميل...' : 'تحميل المزيد ←' }}
+                <span>{{ loadingMore() ? 'جاري التحميل...' : 'تحميل المزيد' }}</span>
+                @if (!loadingMore()) {
+                  <app-icon name="arrow-left" [size]="16" />
+                }
               </button>
             </div>
           }
@@ -123,7 +132,7 @@ import { CourseListItem } from '../../core/models';
       align-items: center;
       justify-content: center;
       background: linear-gradient(135deg, var(--primary-50), var(--secondary-50));
-      font-size: 3rem;
+      color: var(--primary-400);
     }
 
     .course-info { padding: var(--space-5); }
@@ -138,6 +147,9 @@ import { CourseListItem } from '../../core/models';
       font-size: var(--font-size-sm);
       color: var(--gray-500);
       margin-bottom: var(--space-3);
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
     .course-footer {
       display: flex;
@@ -158,14 +170,30 @@ import { CourseListItem } from '../../core/models';
       text-align: center;
       padding: var(--space-20) 0;
     }
-    .empty-icon { font-size: 4rem; display: block; margin-bottom: var(--space-4); }
+    .empty-icon-wrap {
+      width: 80px;
+      height: 80px;
+      border-radius: var(--radius-2xl);
+      background: var(--primary-50);
+      color: var(--primary-600);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto var(--space-4);
+    }
     .empty-state h3 { font-weight: 700; color: var(--gray-700); margin-bottom: var(--space-2); }
     .empty-state p { color: var(--gray-500); }
 
     .load-more { text-align: center; margin-top: var(--space-10); }
 
     @media (max-width: 1024px) { .courses-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 640px) { .courses-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 640px) {
+      .courses-page { padding: var(--space-6) 0 var(--space-12); }
+      .page-header { margin-bottom: var(--space-6); }
+      .page-header h1 { font-size: var(--font-size-2xl); }
+      .courses-grid { grid-template-columns: 1fr; }
+      .load-more .btn { width: 100%; max-width: 280px; justify-content: center; }
+    }
   `]
 })
 export class CoursesComponent implements OnInit {

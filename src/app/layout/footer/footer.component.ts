@@ -10,7 +10,7 @@ import { RouterLink } from '@angular/router';
       <div class="container footer-content">
         <div class="footer-brand">
           <a routerLink="/" class="footer-logo">
-            <span>🎓</span>
+            <img src="/logo.jpeg" alt="فالك التوفيق" class="footer-logo-img" />
             <span class="footer-logo-text">فالك التوفيق</span>
           </a>
           <p class="footer-desc">نصنع قادة المستقبل عبر تعليم ذكي، محفز وعصري على أسس علمية متينة.</p>
@@ -65,11 +65,19 @@ import { RouterLink } from '@angular/router';
     .footer-logo {
       display: flex;
       align-items: center;
-      gap: var(--space-2);
+      gap: var(--space-3);
       font-size: var(--font-size-xl);
       font-weight: 800;
       color: white;
       margin-bottom: var(--space-4);
+    }
+    .footer-logo-img {
+      height: 38px;
+      width: auto;
+      object-fit: contain;
+      border-radius: var(--radius-md);
+      background: white;
+      padding: 2px 4px;
     }
     .footer-desc {
       font-size: var(--font-size-sm);
@@ -123,6 +131,17 @@ import { RouterLink } from '@angular/router';
       .footer-content {
         grid-template-columns: 1fr;
         gap: var(--space-8);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .footer-content {
+        padding: var(--space-10) 0 var(--space-8);
+      }
+      .footer-bottom-content {
+        flex-direction: column;
+        gap: var(--space-3);
+        text-align: center;
       }
     }
   `]

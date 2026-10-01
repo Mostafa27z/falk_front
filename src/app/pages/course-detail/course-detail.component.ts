@@ -3,11 +3,13 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
 import { CourseDetail, LessonType } from '../../core/models';
+import { IconComponent, IconName } from '../../shared/icon/icon.component';
+import { DialogService } from '../../shared/dialog/dialog.service';
 
 @Component({
   selector: 'app-course-detail',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, IconComponent],
   template: `
     @if (loading()) {
       <div class="detail-page">
@@ -26,20 +28,29 @@ import { CourseDetail, LessonType } from '../../core/models';
           <div class="hero-bg-gradient"></div>
           <div class="container detail-hero-content">
             <div class="detail-info animate-fade-in-up">
-              <a routerLink="/courses" class="back-link">← العودة للدورات</a>
+              <a routerLink="/courses" class="back-link">
+                <app-icon name="arrow-right" [size]="16" />
+                <span>العودة للدورات</span>
+              </a>
               <h1>{{ course()!.title }}</h1>
               <p class="detail-desc">{{ course()!.description }}</p>
               <div class="detail-meta">
                 <div class="meta-item">
-                  <span class="meta-icon">👤</span>
+                  <span class="meta-icon">
+                    <app-icon name="user" [size]="16" />
+                  </span>
                   <span>{{ course()!.instructorName }}</span>
                 </div>
                 <div class="meta-item">
-                  <span class="meta-icon">📅</span>
+                  <span class="meta-icon">
+                    <app-icon name="clock" [size]="16" />
+                  </span>
                   <span>{{ formatDate(course()!.createdAt) }}</span>
                 </div>
                 <div class="meta-item">
-                  <span class="meta-icon">📖</span>
+                  <span class="meta-icon">
+                    <app-icon name="book-open" [size]="16" />
+                  </span>
                   <span>{{ getTotalLessons() }} درس</span>
                 </div>
               </div>
@@ -50,16 +61,20 @@ import { CourseDetail, LessonType } from '../../core/models';
                 @if (course()!.picturePath) {
                   <img [src]="course()!.picturePath" [alt]="course()!.title" class="price-card-img">
                 } @else {
-                  <div class="price-card-img-placeholder">📚</div>
+                  <div class="price-card-img-placeholder">
+                    <app-icon name="book-open" [size]="48" [strokeWidth]="1.5" />
+                  </div>
                 }
                 <div class="price-card-body">
                   <div class="price-amount">{{ course()!.price }} <span>ر.س</span></div>
                   @if (auth.isLoggedIn()) {
                     <button class="btn btn-primary btn-lg full-width" (click)="addToCart()" [disabled]="addingToCart()">
-                      {{ addingToCart() ? 'جاري الإضافة...' : '🛒 أضف للسلة' }}
+                      <app-icon name="shopping-cart" [size]="18" />
+                      <span>{{ addingToCart() ? 'جاري الإضافة...' : 'أضف للسلة' }}</span>
                     </button>
                     <a [routerLink]="['/learn', course()!.id]" class="btn btn-outline full-width" style="margin-top: 12px">
-                      ▶ ابدأ التعلم
+                      <app-icon name="play-circle" [size]="18" />
+                      <span>ابدأ التعلم</span>
                     </a>
                   } @else {
                     <a routerLink="/login" class="btn btn-primary btn-lg full-width">
@@ -88,7 +103,9 @@ import { CourseDetail, LessonType } from '../../core/models';
                     </div>
                     <div class="section-meta">
                       <span>{{ section.lessons.length }} درس</span>
-                      <span class="chevron" [class.open]="openSections().includes(i)">▼</span>
+                      <span class="chevron" [class.open]="openSections().includes(i)">
+                        <app-icon [name]="openSections().includes(i) ? 'chevron-up' : 'chevron-down'" [size]="16" />
+                      </span>
                     </div>
                   </button>
 
@@ -96,7 +113,9 @@ import { CourseDetail, LessonType } from '../../core/models';
                     <div class="section-lessons">
                       @for (lesson of section.lessons; track lesson.id; let j = $index) {
                         <div class="lesson-item">
-                          <span class="lesson-icon">{{ getLessonIcon(lesson.type) }}</span>
+                          <span class="lesson-icon">
+                            <app-icon [name]="getLessonIcon(lesson.type)" [size]="16" />
+                          </span>
                           <span class="lesson-title">{{ lesson.title }}</span>
                           <span class="lesson-type badge badge-purple">{{ getLessonTypeAr(lesson.type) }}</span>
                         </div>
@@ -110,26 +129,19 @@ import { CourseDetail, LessonType } from '../../core/models';
         </section>
       </div>
     }
-
-    @if (toastMsg()) {
-      <div class="toast" [class.toast-success]="toastType() === 'success'" [class.toast-error]="toastType() === 'error'">
-        {{ toastMsg() }}
-      </div>
-    }
   `,
   styleUrl: './course-detail.component.css'
 })
 export class CourseDetailComponent implements OnInit {
   private api = inject(ApiService);
   private route = inject(ActivatedRoute);
+  private dialog = inject(DialogService);
   auth = inject(AuthService);
 
   course = signal<CourseDetail | null>(null);
   loading = signal(true);
   openSections = signal<number[]>([0]);
   addingToCart = signal(false);
-  toastMsg = signal('');
-  toastType = signal<'success' | 'error'>('success');
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id')!;
@@ -149,9 +161,14 @@ export class CourseDetailComponent implements OnInit {
     return this.course()?.sections.reduce((sum, s) => sum + s.lessons.length, 0) ?? 0;
   }
 
-  getLessonIcon(type: LessonType): string {
-    const icons: Record<LessonType, string> = { Written: '📝', Video: '🎬', Quiz: '❓', Pdf: '📄' };
-    return icons[type];
+  getLessonIcon(type: LessonType): IconName {
+    const icons: Record<LessonType, IconName> = {
+      Written: 'file-text',
+      Video: 'video',
+      Quiz: 'help-circle',
+      Pdf: 'file'
+    };
+    return icons[type] || 'file-text';
   }
 
   getLessonTypeAr(type: LessonType): string {
@@ -168,19 +185,23 @@ export class CourseDetailComponent implements OnInit {
     this.api.addCartItem({ courseId: this.course()!.id, isRenewal: false }).subscribe({
       next: () => {
         this.addingToCart.set(false);
-        this.showToast('تمت إضافة الدورة للسلة ✓', 'success');
+        this.dialog.alert({
+          title: 'تمت الإضافة للسلة',
+          message: 'تمت إضافة الدورة بنجاح إلى سلة مشترياتك!',
+          type: 'success',
+          okText: 'متابعة التصفح'
+        });
       },
       error: (err) => {
         this.addingToCart.set(false);
-        const msg = err.error?.detail || 'حدث خطأ، حاول مرة أخرى';
-        this.showToast(msg, 'error');
+        const msg = err.error?.detail || 'حدث خطأ، أو أن الدورة مضافة مسبقاً إلى السلة';
+        this.dialog.alert({
+          title: 'تنبيه السلة',
+          message: msg,
+          type: 'info',
+          okText: 'حسناً'
+        });
       }
     });
-  }
-
-  private showToast(msg: string, type: 'success' | 'error') {
-    this.toastMsg.set(msg);
-    this.toastType.set(type);
-    setTimeout(() => this.toastMsg.set(''), 3000);
   }
 }

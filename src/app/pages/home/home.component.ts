@@ -2,11 +2,12 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../core/api.service';
 import { CourseListItem } from '../../core/models';
+import { IconComponent } from '../../shared/icon/icon.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, IconComponent],
   template: `
     <!-- ============ HERO ============ -->
     <section class="hero">
@@ -17,7 +18,10 @@ import { CourseListItem } from '../../core/models';
       </div>
       <div class="container hero-content">
         <div class="hero-text animate-fade-in-up">
-          <span class="hero-badge">🚀 منصة تعليمية متطورة</span>
+          <span class="hero-badge">
+            <app-icon name="sparkles" [size]="16" />
+            <span>منصة تعليمية متطورة وموثوقة</span>
+          </span>
           <h1>
             مستقبلك يبدأ هنا مع
             <span class="gradient-text">فالك التوفيق</span>
@@ -28,10 +32,12 @@ import { CourseListItem } from '../../core/models';
           </p>
           <div class="hero-actions">
             <a routerLink="/register" class="btn btn-primary btn-lg">
-              ابدأ رحلتك الآن ←
+              <span>ابدأ رحلتك الآن</span>
+              <app-icon name="arrow-left" [size]="18" />
             </a>
             <a routerLink="/courses" class="btn btn-outline btn-lg">
-              <span class="play-icon">▶</span> تصفح الدورات
+              <app-icon name="play-circle" [size]="18" />
+              <span>تصفح الدورات</span>
             </a>
           </div>
         </div>
@@ -47,13 +53,15 @@ import { CourseListItem } from '../../core/models';
               </div>
             </div>
             <div class="hero-card hero-card-2">
-              <span class="hc-emoji">🧠</span>
+              <span class="hc-icon-wrap">
+                <app-icon name="brain" [size]="20" />
+              </span>
               <span class="hc-text">تفكير ذهني</span>
               <span class="hc-badge">مرتفع</span>
             </div>
             <div class="hero-brain-circle">
               <div class="brain-pulse"></div>
-              <span class="brain-emoji">🧠</span>
+              <app-icon name="brain" [size]="64" [strokeWidth]="1.5" />
             </div>
           </div>
         </div>
@@ -68,24 +76,39 @@ import { CourseListItem } from '../../core/models';
 
         <div class="tracks-grid stagger-children">
           <div class="track-card track-tahsili animate-fade-in-up">
-            <div class="track-icon">📊</div>
+            <div class="track-icon">
+              <app-icon name="trending-up" [size]="28" />
+            </div>
             <h3>مسار التحصيلي</h3>
             <p>مراجعة شاملة للمقررات العلمية لضمان أعلى الدرجات.</p>
-            <a routerLink="/courses" class="track-link">استكشف المسار ←</a>
+            <a routerLink="/courses" class="track-link">
+              <span>استكشف المسار</span>
+              <app-icon name="arrow-left" [size]="14" />
+            </a>
           </div>
 
           <div class="track-card track-qudrat animate-fade-in-up">
-            <div class="track-icon">Σ</div>
+            <div class="track-icon">
+              <app-icon name="calculator" [size]="28" />
+            </div>
             <h3>مسار القدرات</h3>
             <p>تأسيس وتدريب مكثف على القسمين الكمي والفظي بأحدث استراتيجيات الحل السريع والذكي.</p>
-            <a routerLink="/courses" class="track-link">استكشف المسار ←</a>
+            <a routerLink="/courses" class="track-link">
+              <span>استكشف المسار</span>
+              <app-icon name="arrow-left" [size]="14" />
+            </a>
           </div>
 
           <div class="track-card track-mawaheb animate-fade-in-up">
-            <div class="track-icon">📍</div>
+            <div class="track-icon">
+              <app-icon name="sparkles" [size]="28" />
+            </div>
             <h3>مسار موهبة</h3>
-            <p>تنمية القدرات العقلية والإبداعية.</p>
-            <a routerLink="/courses" class="track-link">استكشف المسار ←</a>
+            <p>تنمية القدرات العقلية والإبداعية على أعلى مستوى أكاديمي.</p>
+            <a routerLink="/courses" class="track-link">
+              <span>استكشف المسار</span>
+              <app-icon name="arrow-left" [size]="14" />
+            </a>
           </div>
         </div>
       </div>
@@ -121,16 +144,22 @@ import { CourseListItem } from '../../core/models';
           <p>نظام تحليل متقدم يحدد نقاط قوتك وضعفك لتوجيهك نحو التحسين المستمر.</p>
           <ul class="tracking-features">
             <li>
-              <span class="feature-check">✓</span>
-              تحليل الأداء في الوقت الحقيقي
+              <span class="feature-check">
+                <app-icon name="check-circle" [size]="18" />
+              </span>
+              <span>تحليل الأداء في الوقت الحقيقي</span>
             </li>
             <li>
-              <span class="feature-check">✓</span>
-              توصيات مخصصة لتحسين المستوى
+              <span class="feature-check">
+                <app-icon name="check-circle" [size]="18" />
+              </span>
+              <span>توصيات مخصصة لتحسين المستوى</span>
             </li>
             <li>
-              <span class="feature-check">✓</span>
-              تقارير تفصيلية للتقدم
+              <span class="feature-check">
+                <app-icon name="check-circle" [size]="18" />
+              </span>
+              <span>تقارير تفصيلية للتقدم والنتائج</span>
             </li>
           </ul>
         </div>
@@ -163,7 +192,7 @@ import { CourseListItem } from '../../core/models';
                     <img [src]="course.picturePath" [alt]="course.title">
                   } @else {
                     <div class="course-img-placeholder">
-                      <span>📚</span>
+                      <app-icon name="book-open" [size]="36" [strokeWidth]="1.5" />
                     </div>
                   }
                 </div>
@@ -179,7 +208,10 @@ import { CourseListItem } from '../../core/models';
           </div>
 
           <div class="featured-cta">
-            <a routerLink="/courses" class="btn btn-outline btn-lg">عرض جميع الدورات ←</a>
+            <a routerLink="/courses" class="btn btn-outline btn-lg">
+              <span>عرض جميع الدورات</span>
+              <app-icon name="arrow-left" [size]="16" />
+            </a>
           </div>
         </div>
       </section>
@@ -190,7 +222,10 @@ import { CourseListItem } from '../../core/models';
       <div class="container cta-content">
         <h2>جاهز لبدء رحلة التفوق؟</h2>
         <p>انضم لآلاف الطلاب الذين حققوا أحلامهم مع فالك التوفيق</p>
-        <a routerLink="/register" class="btn btn-primary btn-lg">سجّل الآن مجاناً ←</a>
+        <a routerLink="/register" class="btn btn-primary btn-lg">
+          <span>سجّل الآن مجاناً</span>
+          <app-icon name="arrow-left" [size]="18" />
+        </a>
       </div>
     </section>
   `,

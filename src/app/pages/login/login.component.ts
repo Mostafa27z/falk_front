@@ -4,17 +4,19 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/auth.service';
 import { UserRole } from '../../core/models';
 import { extractErrorMessage } from '../../core/error-utils';
+import { IconComponent } from '../../shared/icon/icon.component';
+import { DialogService } from '../../shared/dialog/dialog.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule, IconComponent],
   template: `
     <div class="auth-page">
       <div class="auth-container animate-fade-in-up">
         <div class="auth-card card-glass">
           <div class="auth-header">
-            <span class="auth-logo">🎓</span>
+            <img src="/logo.jpeg" alt="فالك التوفيق" class="auth-brand-logo" />
             <h1>تسجيل الدخول</h1>
             <p>مرحباً بعودتك! حدد نوع حسابك وتابع رحلتك</p>
           </div>
@@ -26,21 +28,24 @@ import { extractErrorMessage } from '../../core/error-utils';
               class="role-tab"
               [class.active]="selectedRole === 'student'"
               (click)="selectedRole = 'student'">
-              🎓 حساب طالب
+              <app-icon name="graduation-cap" [size]="16" />
+              <span>حساب طالب</span>
             </button>
             <button
               type="button"
               class="role-tab"
               [class.active]="selectedRole === 'admin'"
               (click)="selectedRole = 'admin'">
-              👑 مدير النظام
+              <app-icon name="shield-check" [size]="16" />
+              <span>مدير النظام</span>
             </button>
             <button
               type="button"
               class="role-tab"
               [class.active]="selectedRole === 'instructor'"
               (click)="selectedRole = 'instructor'">
-              👨‍🏫 محاضر
+              <app-icon name="user-check" [size]="16" />
+              <span>محاضر</span>
             </button>
           </div>
 
@@ -64,7 +69,10 @@ import { extractErrorMessage } from '../../core/error-utils';
             <a routerLink="/forgot-password" class="forgot-link">نسيت كلمة المرور؟</a>
 
             <button type="submit" class="btn btn-primary btn-lg full-width" [disabled]="loading()">
-              {{ loading() ? 'جاري التحقق والدخول...' : 'تسجيل الدخول ←' }}
+              <span>{{ loading() ? 'جاري التحقق والدخول...' : 'تسجيل الدخول' }}</span>
+              @if (!loading()) {
+                <app-icon name="arrow-left" [size]="16" />
+              }
             </button>
           </form>
 
@@ -80,6 +88,7 @@ import { extractErrorMessage } from '../../core/error-utils';
 })
 export class LoginComponent {
   private auth = inject(AuthService);
+  private dialog = inject(DialogService);
 
   email = '';
   password = '';
@@ -89,7 +98,7 @@ export class LoginComponent {
 
   onSubmit() {
     if (!this.email || !this.password) {
-      this.error.set('يرجى إدخال البريد الإلكتروني وكلمة المرور');
+      this.dialog.warning('يرجى إدخال البريد الإلكتروني وكلمة المرور');
       return;
     }
     this.loading.set(true);
@@ -98,7 +107,9 @@ export class LoginComponent {
     this.auth.login(this.email, this.password, this.selectedRole).subscribe({
       error: (err) => {
         this.loading.set(false);
-        this.error.set(extractErrorMessage(err));
+        const errMsg = extractErrorMessage(err);
+        this.error.set(errMsg);
+        this.dialog.error(errMsg, 'فشل تسجيل الدخول');
       }
     });
   }

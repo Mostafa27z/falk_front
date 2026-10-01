@@ -4,17 +4,19 @@ import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './layout/navbar/navbar.component';
 import { FooterComponent } from './layout/footer/footer.component';
 import { AuthService } from './core/auth.service';
+import { DialogComponent } from './shared/dialog/dialog.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, NavbarComponent, FooterComponent],
+  imports: [RouterOutlet, NavbarComponent, FooterComponent, DialogComponent],
   template: `
     <app-navbar />
     <main class="main-content">
       <router-outlet />
     </main>
     <app-footer />
+    <app-dialog />
   `,
   styles: [`
     :host {

@@ -3,17 +3,22 @@ import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeHtml, SafeResourceUrl } from '@angular/platform-browser';
 import { ApiService } from '../../core/api.service';
 import { CourseDetail, LessonDetail, LessonType, SectionResponse } from '../../core/models';
+import { IconComponent, IconName } from '../../shared/icon/icon.component';
+import { DialogService } from '../../shared/dialog/dialog.service';
 
 @Component({
   selector: 'app-learn',
   standalone: true,
+  imports: [IconComponent],
   template: `
     <div class="learn-page">
       <!-- Sidebar -->
       <aside class="learn-sidebar" [class.open]="sidebarOpen()">
         <div class="sidebar-header">
           <h3>{{ course()?.title }}</h3>
-          <button class="sidebar-close" (click)="sidebarOpen.set(false)">✕</button>
+          <button class="sidebar-close" (click)="sidebarOpen.set(false)" title="إغلاق القائمة">
+            <app-icon name="x" [size]="18" />
+          </button>
         </div>
 
         <div class="sidebar-sections">
@@ -26,10 +31,14 @@ import { CourseDetail, LessonDetail, LessonType, SectionResponse } from '../../c
                   [class.active]="currentLessonId() === lesson.id"
                   [class.completed]="completedLessons().has(lesson.id)"
                   (click)="selectLesson(lesson.id)">
-                  <span class="sl-icon">{{ getLessonIcon(lesson.type) }}</span>
+                  <span class="sl-icon">
+                    <app-icon [name]="getLessonIcon(lesson.type)" [size]="16" />
+                  </span>
                   <span class="sl-title">{{ lesson.title }}</span>
                   @if (completedLessons().has(lesson.id)) {
-                    <span class="sl-check">✓</span>
+                    <span class="sl-check">
+                      <app-icon name="check" [size]="12" />
+                    </span>
                   }
                 </button>
               }
@@ -41,14 +50,24 @@ import { CourseDetail, LessonDetail, LessonType, SectionResponse } from '../../c
       <!-- Main Content -->
       <main class="learn-main">
         <div class="learn-topbar">
-          <button class="btn btn-sm btn-outline" (click)="sidebarOpen.set(true)">
-            ☰ المحتوى
+          <button class="btn btn-sm btn-outline content-btn" (click)="sidebarOpen.set(true)" title="المحتوى" aria-label="المحتوى">
+            <app-icon name="menu" [size]="16" />
+            <span class="btn-text">المحتوى</span>
           </button>
-          <h2>{{ currentLesson()?.title }}</h2>
+          <h2 [title]="currentLesson()?.title || ''">{{ currentLesson()?.title }}</h2>
           <div class="learn-nav-btns">
-            <button class="btn btn-sm btn-outline" (click)="prevLesson()" [disabled]="!hasPrev()">السابق</button>
-            <button class="btn btn-sm btn-primary" (click)="markComplete()">✓ إكمال</button>
-            <button class="btn btn-sm btn-primary" (click)="nextLesson()" [disabled]="!hasNext()">التالي ←</button>
+            <button class="btn btn-sm btn-outline nav-btn" (click)="prevLesson()" [disabled]="!hasPrev()" title="السابق" aria-label="السابق">
+              <app-icon name="arrow-right" [size]="14" />
+              <span class="btn-text">السابق</span>
+            </button>
+            <button class="btn btn-sm btn-outline nav-btn" (click)="markComplete()" title="إكمال" aria-label="إكمال">
+              <app-icon name="check" [size]="14" />
+              <span class="btn-text">إكمال</span>
+            </button>
+            <button class="btn btn-sm btn-primary nav-btn" (click)="nextLesson()" [disabled]="!hasNext()" title="التالي" aria-label="التالي">
+              <span class="btn-text">التالي</span>
+              <app-icon name="arrow-left" [size]="14" />
+            </button>
           </div>
         </div>
 
@@ -76,13 +95,13 @@ import { CourseDetail, LessonDetail, LessonType, SectionResponse } from '../../c
                     </div>
                   } @else if (currentLesson()!.video!.status === 'Pending') {
                     <div class="video-pending">
-                      <span>⏳</span>
+                      <app-icon name="clock" [size]="44" />
                       <h3>الفيديو قيد المعالجة</h3>
                       <p>يرجى المحاولة لاحقاً</p>
                     </div>
                   } @else {
                     <div class="video-pending">
-                      <span>❌</span>
+                      <app-icon name="alert-circle" [size]="44" />
                       <h3>خطأ في تحميل الفيديو</h3>
                     </div>
                   }
@@ -112,15 +131,25 @@ import { CourseDetail, LessonDetail, LessonType, SectionResponse } from '../../c
                         </div>
                       }
                       <button class="btn btn-primary btn-lg" (click)="submitQuiz()">
-                        إرسال الإجابات ←
+                        <span>إرسال الإجابات</span>
+                        <app-icon name="arrow-left" [size]="16" />
                       </button>
                     } @else {
                       <div class="quiz-result card" [class.passed]="quizPassed()" [class.failed]="!quizPassed()">
-                        <div class="result-icon">{{ quizPassed() ? '🎉' : '😔' }}</div>
+                        <div class="result-icon">
+                          @if (quizPassed()) {
+                            <app-icon name="trophy" [size]="48" />
+                          } @else {
+                            <app-icon name="alert-circle" [size]="48" />
+                          }
+                        </div>
                         <h3>{{ quizPassed() ? 'أحسنت! لقد اجتزت الاختبار' : 'لم تجتز الاختبار' }}</h3>
                         <p>نتيجتك: {{ quizScore() }}%</p>
                         @if (!quizPassed()) {
-                          <button class="btn btn-outline" (click)="retryQuiz()">أعد المحاولة</button>
+                          <button class="btn btn-outline" (click)="retryQuiz()">
+                            <app-icon name="rotate-ccw" [size]="16" />
+                            <span>أعد المحاولة</span>
+                          </button>
                         }
                       </div>
                     }
@@ -131,13 +160,16 @@ import { CourseDetail, LessonDetail, LessonType, SectionResponse } from '../../c
                 @if (currentLesson()!.pdf) {
                   <div class="pdf-container">
                     <div class="pdf-header card">
-                      <span class="pdf-icon">📄</span>
+                      <span class="pdf-icon">
+                        <app-icon name="file-text" [size]="32" />
+                      </span>
                       <div class="pdf-info">
                         <h3>{{ currentLesson()!.title }}</h3>
                         <p>حجم الملف: {{ formatBytes(currentLesson()!.pdf!.sizeBytes) }}</p>
                       </div>
-                      <a [href]="currentLesson()!.pdf!.downloadUrl" target="_blank" class="btn btn-primary">
-                        ⬇ تحميل PDF
+                      <a [href]="currentLesson()!.pdf!.downloadUrl" target="_blank" class="btn btn-primary pdf-download-btn" title="تحميل ملف PDF" aria-label="تحميل ملف PDF">
+                        <app-icon name="file-down" [size]="16" />
+                        <span class="btn-text">تحميل PDF</span>
                       </a>
                     </div>
                     <iframe [src]="pdfUrl()" class="pdf-frame"></iframe>
@@ -147,7 +179,7 @@ import { CourseDetail, LessonDetail, LessonType, SectionResponse } from '../../c
             }
           } @else {
             <div class="lesson-empty">
-              <span>📖</span>
+              <app-icon name="book-open" [size]="48" [strokeWidth]="1.5" />
               <h3>اختر درساً من القائمة للبدء</h3>
             </div>
           }
@@ -161,6 +193,7 @@ export class LearnComponent implements OnInit {
   private api = inject(ApiService);
   private route = inject(ActivatedRoute);
   private sanitizer = inject(DomSanitizer);
+  private dialog = inject(DialogService);
 
   course = signal<CourseDetail | null>(null);
   currentLesson = signal<LessonDetail | null>(null);
@@ -205,9 +238,14 @@ export class LearnComponent implements OnInit {
     });
   }
 
-  getLessonIcon(type: LessonType): string {
-    const icons: Record<LessonType, string> = { Written: '📝', Video: '🎬', Quiz: '❓', Pdf: '📄' };
-    return icons[type];
+  getLessonIcon(type: LessonType): IconName {
+    const icons: Record<LessonType, IconName> = {
+      Written: 'file-text',
+      Video: 'video',
+      Quiz: 'help-circle',
+      Pdf: 'file'
+    };
+    return icons[type] || 'file-text';
   }
 
   sanitizedContent(): SafeHtml {
@@ -233,6 +271,13 @@ export class LearnComponent implements OnInit {
     const quiz = this.currentLesson()?.quiz;
     if (!quiz) return;
 
+    const totalQuestions = quiz.questions.length;
+    const answeredCount = Object.keys(this.selectedAnswers()).length;
+    if (answeredCount < totalQuestions) {
+      this.dialog.warning(`يرجى الإجابة على جميع الأسئلة قبل إرسال الاختبار (أجبت على ${answeredCount} من ${totalQuestions})`, 'إكمال الإجابات مطلوب');
+      return;
+    }
+
     let correct = 0;
     quiz.questions.forEach((q, qi) => {
       const selected = this.selectedAnswers()[qi];
@@ -240,9 +285,26 @@ export class LearnComponent implements OnInit {
     });
 
     const score = Math.round((correct / quiz.questions.length) * 100);
+    const passed = score >= quiz.passingScore;
     this.quizScore.set(score);
-    this.quizPassed.set(score >= quiz.passingScore);
+    this.quizPassed.set(passed);
     this.quizSubmitted.set(true);
+
+    if (passed) {
+      this.dialog.alert({
+        title: 'أحسنت! اجتزت الاختبار بنجاح',
+        message: `حصلت على ${score}% (الدرجة المطلوبة: ${quiz.passingScore}%).\nتم تسجيل إتمام هذا الاختبار.`,
+        type: 'success',
+        okText: 'متابعة'
+      });
+    } else {
+      this.dialog.alert({
+        title: 'لم تجتز الاختبار',
+        message: `حصلت على ${score}% وهي أقل من النسبة المطلوبة (${quiz.passingScore}%).\nراجع محتوى الدرس وأعد المحاولة.`,
+        type: 'warning',
+        okText: 'إعادة المحاولة'
+      });
+    }
   }
 
   retryQuiz() {
@@ -277,7 +339,16 @@ export class LearnComponent implements OnInit {
       ns.add(this.currentLessonId());
       return ns;
     });
-    if (this.hasNext()) this.nextLesson();
+    if (this.hasNext()) {
+      this.nextLesson();
+    } else {
+      this.dialog.alert({
+        title: 'مبارك! أكملت جميع الدروس',
+        message: 'تهانينا الحارة! لقد أنهيت بنجاح دراسة كافة دروس هذا المقرر. فالك التوفيق والنجاح الدائم!',
+        type: 'success',
+        okText: 'حسناً'
+      });
+    }
   }
 
   formatBytes(bytes: number): string {

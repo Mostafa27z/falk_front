@@ -3,24 +3,27 @@ import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/auth.service';
 import { extractErrorMessage } from '../../core/error-utils';
+import { IconComponent } from '../../shared/icon/icon.component';
+import { DialogService } from '../../shared/dialog/dialog.service';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule, IconComponent],
   template: `
     <div class="auth-page">
       <div class="auth-container animate-fade-in-up">
         <div class="auth-card card-glass">
           <div class="auth-header">
-            <span class="auth-logo">🎓</span>
+            <img src="/logo.jpeg" alt="فالك التوفيق" class="auth-brand-logo" />
             <h1>تسجيل حساب جديد</h1>
             <p>انضم لآلاف الطلاب وابدأ رحلتك التعليمية</p>
           </div>
 
           @if (success()) {
-            <div class="auth-success">
-              ✅ تم إنشاء حسابك بنجاح! تحقق من بريدك الإلكتروني لتأكيد الحساب.
+            <div class="auth-success" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+              <app-icon name="check-circle" [size]="20" />
+              <span>تم إنشاء حسابك بنجاح! تحقق من بريدك الإلكتروني لتأكيد الحساب.</span>
             </div>
           }
 
@@ -65,7 +68,10 @@ import { extractErrorMessage } from '../../core/error-utils';
               </div>
 
               <button type="submit" class="btn btn-primary btn-lg full-width" [disabled]="loading()">
-                {{ loading() ? 'جاري التسجيل...' : 'إنشاء حساب ←' }}
+                <span>{{ loading() ? 'جاري التسجيل...' : 'إنشاء حساب جديد' }}</span>
+                @if (!loading()) {
+                  <app-icon name="arrow-left" [size]="16" />
+                }
               </button>
             </form>
           }
@@ -108,6 +114,7 @@ import { extractErrorMessage } from '../../core/error-utils';
 export class RegisterComponent {
   private auth = inject(AuthService);
   private router = inject(Router);
+  private dialog = inject(DialogService);
 
   firstName = '';
   lastName = '';
@@ -120,7 +127,7 @@ export class RegisterComponent {
 
   onSubmit() {
     if (!this.firstName || !this.lastName || !this.email || !this.phone || !this.password) {
-      this.error.set('يرجى ملء جميع الحقول');
+      this.dialog.warning('يرجى ملء جميع الحقول المطلوبة لإنشاء الحساب');
       return;
     }
     this.loading.set(true);
@@ -136,10 +143,20 @@ export class RegisterComponent {
       next: () => {
         this.loading.set(false);
         this.success.set(true);
+        this.dialog.alert({
+          title: 'تم إنشاء حسابك بنجاح!',
+          message: 'أهلاً بك في منصة فالك التوفيق!\nتم إنشاء حسابك بنجاح، يمكنك الآن تسجيل الدخول والبدء.',
+          type: 'success',
+          okText: 'الانتقال لتسجيل الدخول'
+        }).then(() => {
+          this.router.navigate(['/login']);
+        });
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(extractErrorMessage(err));
+        const errMessage = extractErrorMessage(err);
+        this.error.set(errMessage);
+        this.dialog.error(errMessage, 'تعذر التسجيل');
       }
     });
   }

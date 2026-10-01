@@ -2,11 +2,13 @@ import { Component, inject, OnInit, signal, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ApiService } from '../../core/api.service';
 import { PaymentStatusResponse } from '../../core/models';
+import { IconComponent } from '../../shared/icon/icon.component';
+import { DialogService } from '../../shared/dialog/dialog.service';
 
 @Component({
   selector: 'app-payment-status',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, IconComponent],
   template: `
     <div class="status-page">
       <div class="container">
@@ -19,17 +21,24 @@ import { PaymentStatusResponse } from '../../core/models';
             </div>
           } @else if (status() === 'Succeeded') {
             <div class="state-container success">
-              <div class="icon-circle success-icon">✓</div>
+              <div class="icon-circle success-icon">
+                <app-icon name="check-circle" [size]="44" />
+              </div>
               <h2>تمت عملية الدفع بنجاح!</h2>
               <p>تهانينا! تم اشتراكك في الدورة بنجاح. يمكنك الآن بدء رحلتك التعليمية.</p>
               <div class="actions">
-                <a routerLink="/courses" class="btn btn-primary btn-lg">تصفح دوراتي 🚀</a>
+                <a routerLink="/courses" class="btn btn-primary btn-lg">
+                  <span>تصفح دوراتي</span>
+                  <app-icon name="arrow-left" [size]="16" />
+                </a>
                 <a routerLink="/" class="btn btn-outline btn-lg">العودة للرئيسية</a>
               </div>
             </div>
           } @else if (status() === 'Pending') {
             <div class="state-container pending">
-              <div class="icon-circle pending-icon">⏳</div>
+              <div class="icon-circle pending-icon">
+                <app-icon name="clock" [size]="44" />
+              </div>
               <h2>عملية الدفع معلقة</h2>
               <p>ما زالت عملية الدفع قيد المعالجة من قبل مزود الخدمة. سنواصل التحديث تلقائياً...</p>
               <div class="actions">
@@ -39,7 +48,9 @@ import { PaymentStatusResponse } from '../../core/models';
             </div>
           } @else if (status() === 'Cancelled') {
             <div class="state-container cancelled">
-              <div class="icon-circle cancelled-icon">✕</div>
+              <div class="icon-circle cancelled-icon">
+                <app-icon name="x" [size]="44" />
+              </div>
               <h2>تم إلغاء عملية الدفع</h2>
               <p>لقد قمت بإلغاء العملية. يمكنك العودة إلى السلة والمحاولة في أي وقت.</p>
               <div class="actions">
@@ -49,7 +60,9 @@ import { PaymentStatusResponse } from '../../core/models';
             </div>
           } @else {
             <div class="state-container failed">
-              <div class="icon-circle failed-icon">!</div>
+              <div class="icon-circle failed-icon">
+                <app-icon name="alert-circle" [size]="44" />
+              </div>
               <h2>فشلت عملية الدفع</h2>
               <p>{{ errorMessage() || 'تعذر إتمام الدفع. يرجى التأكد من بيانات بطاقتك والمحاولة مجدداً.' }}</p>
               <div class="actions">
@@ -111,8 +124,6 @@ import { PaymentStatusResponse } from '../../core/models';
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 2.5rem;
-      font-weight: 900;
       margin-bottom: var(--space-2);
     }
 
@@ -157,12 +168,31 @@ import { PaymentStatusResponse } from '../../core/models';
       flex-wrap: wrap;
       justify-content: center;
     }
+
+    @media (max-width: 480px) {
+      .status-page { padding: var(--space-6) 0; }
+      .status-card {
+        padding: var(--space-6) var(--space-4);
+        margin: 0 var(--space-3);
+      }
+      .actions {
+        flex-direction: column;
+        width: 100%;
+      }
+      .actions .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      h2 { font-size: var(--font-size-xl); }
+      p { font-size: var(--font-size-sm); }
+    }
   `]
 })
 export class PaymentStatusComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private api = inject(ApiService);
+  private dialog = inject(DialogService);
 
   paymentId = signal<string>('');
   status = signal<string>('Pending');
@@ -214,7 +244,16 @@ export class PaymentStatusComponent implements OnInit, OnDestroy {
     });
   }
 
-  cancel() {
+  async cancel() {
+    const ok = await this.dialog.confirm({
+      title: 'إلغاء المعاملة',
+      message: 'هل أنت متأكد من رغبتك في إلغاء عملية الدفع؟ يمكنك العودة إلى السلة وإعادة المحاولة في أي وقت.',
+      type: 'warning',
+      confirmText: 'نعم، إلغاء المعاملة',
+      cancelText: 'تراجع'
+    });
+    if (!ok) return;
+
     this.api.cancelPayment().subscribe({
       next: () => {
         this.status.set('Cancelled');
